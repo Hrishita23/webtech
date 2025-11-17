@@ -100,42 +100,140 @@
             position: relative;
             width: 100%;
             height: 600px;
-            background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
-            border-radius: 10px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 10px;
-            padding: 20px;
+            background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.15), transparent 45%), 
+                        radial-gradient(circle at 70% 60%, rgba(118, 75, 162, 0.15), transparent 45%),
+                        #0b0b0f;
+            border-radius: 26px;
+            overflow: hidden;
+            border: 1px solid #222;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
         }
 
-        .zone {
-            background: rgba(102, 126, 234, 0.1);
-            border: 2px solid #333;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .city-map::before {
+            content: "";
+            position: absolute;
+            inset: 35px;
+            background: linear-gradient(135deg, rgba(32, 32, 40, 0.95), rgba(19, 19, 25, 0.95));
+            border: 2px solid rgba(102, 126, 234, 0.45);
+            border-radius: 24px;
+            clip-path: polygon(15% 5%, 40% 8%, 58% 3%, 85% 10%, 94% 30%, 92% 60%, 76% 82%, 54% 90%, 32% 88%, 12% 72%, 8% 42%);
+            filter: drop-shadow(0 0 25px rgba(102, 126, 234, 0.2));
+            pointer-events: none;
+        }
+
+        .city-outline {
+            position: absolute;
+            inset: 30px;
+            width: calc(100% - 60px);
+            height: calc(100% - 60px);
+            pointer-events: none;
+        }
+
+        .city-outline path {
+            fill: rgba(102, 126, 234, 0.05);
+            stroke: rgba(118, 75, 162, 0.6);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.3));
+            animation: pulsePath 6s ease-in-out infinite;
+        }
+
+        @keyframes pulsePath {
+            0%, 100% {
+                stroke-dasharray: 8 12;
+                opacity: 0.85;
+            }
+            50% {
+                stroke-dasharray: 16 8;
+                opacity: 0.4;
+            }
+        }
+
+        .city-map::after {
+            content: "";
+            position: absolute;
+            inset: 65px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .city-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(transparent 95%, rgba(255, 255, 255, 0.04) 96%),
+                linear-gradient(90deg, transparent 95%, rgba(255, 255, 255, 0.04) 96%);
+            background-size: 40px 40px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .marker {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            background: none;
+            border: none;
             cursor: pointer;
-            transition: all 0.3s;
+            text-align: center;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        .marker:focus-visible {
+            outline: 2px dashed rgba(255, 255, 255, 0.7);
+            outline-offset: 4px;
+        }
+
+        .marker-pin {
+            width: 22px;
+            height: 22px;
+            border-radius: 50% 50% 50% 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: inline-block;
+            transform: rotate(-45deg);
             position: relative;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .zone:hover {
-            background: rgba(102, 126, 234, 0.3);
-            border-color: #667eea;
-            transform: scale(1.05);
+        .marker-pin::after {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 6px;
+            left: 6px;
         }
 
-        .zone-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .zone-name {
+        .marker-icon {
+            position: absolute;
+            top: 3px;
+            left: 50%;
+            transform: translate(-50%, -50%);
             font-size: 1rem;
-            font-weight: bold;
+        }
+
+        .marker-label {
+            margin-top: 0.2rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            letter-spacing: 0.02em;
+            transition: background 0.3s, border 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .marker:hover .marker-label {
+            background: rgba(102, 126, 234, 0.25);
+            border-color: rgba(102, 126, 234, 0.6);
         }
 
         /* Modal */
@@ -203,13 +301,67 @@
         .modal-info {
             color: #aaa;
             line-height: 1.8;
+            margin-bottom: 1.2rem;
+        }
+
+        .modal-address {
+            padding: 1rem 1.25rem;
+            border-radius: 14px;
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .modal-address strong {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.75rem;
+            color: #9faeff;
+            margin-bottom: 0.4rem;
         }
 
         /* Responsive */
+        .address-panel {
+            margin-top: 1.5rem;
+            background: rgba(22, 22, 30, 0.9);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .address-panel h3 {
+            font-size: 1.1rem;
+            color: #667eea;
+            letter-spacing: 0.05em;
+        }
+
+        .address-panel p {
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        .address-panel span {
+            font-weight: 600;
+            color: #fff;
+        }
+
         @media (max-width: 768px) {
             .city-map {
-                grid-template-columns: repeat(2, 1fr);
-                height: 400px;
+                height: 420px;
+            }
+
+            .city-map::before {
+                inset: 25px;
+            }
+
+            .marker-label {
+                font-size: 0.65rem;
             }
 
             .nav-links {
@@ -237,6 +389,11 @@
         <h1 class="page-title">Interactive City Map</h1>
         <div class="map-container">
             <div class="city-map" id="cityMap"></div>
+            <div class="address-panel">
+                <h3>Selected Location</h3>
+                <p><span id="selectedPlace">Tap a marker</span></p>
+                <p id="selectedAddress">Choose any marker on the map to see the exact address.</p>
+            </div>
         </div>
     </div>
 
@@ -246,31 +403,47 @@
             <button class="modal-close" onclick="closeModal()">×</button>
             <h2 class="modal-title" id="modalTitle"></h2>
             <div class="modal-info" id="modalInfo"></div>
+            <div class="modal-address" id="modalAddress">
+                <strong>Address</strong>
+                <span>Tap a marker to view the exact address.</span>
+            </div>
         </div>
     </div>
 
     <script>
         const zones = [
-            { id: 1, name: "City Park", icon: "🌳", info: "Central Park - 50 acres green space<br>Contact: park@citypulse.com<br>Hours: 6 AM - 8 PM" },
-            { id: 2, name: "Hospital", icon: "🏥", info: "General Hospital<br>Emergency: 911<br>24/7 Service Available" },
-            { id: 3, name: "School", icon: "🏫", info: "Public School District<br>Contact: education@citypulse.com<br>Grades K-12" },
-            { id: 4, name: "Mall", icon: "🛍️", info: "City Shopping Center<br>200+ stores<br>Open: 10 AM - 10 PM" },
-            { id: 5, name: "Library", icon: "📚", info: "Public Library<br>Free membership<br>Mon-Sat: 9 AM - 7 PM" },
-            { id: 6, name: "Stadium", icon: "🏟️", info: "Sports Complex<br>Capacity: 30,000<br>Event bookings available" },
-            { id: 7, name: "Metro", icon: "🚇", info: "Metro Station<br>4 lines intersect here<br>First train: 5 AM" },
-            { id: 8, name: "Police", icon: "👮", info: "Police Station<br>Emergency: 911<br>Community helpline available" },
-            { id: 9, name: "Fire Dept", icon: "🚒", info: "Fire Department<br>Emergency: 911<br>Fire safety training available" }
+            { id: 1, name: "City Park", icon: "🌳", info: "Central Park - 50 acres green space<br>Contact: park@citypulse.com<br>Hours: 6 AM - 8 PM", address: "101 Arbor Lane, Midtown", position: { x: 30, y: 35 } },
+            { id: 2, name: "Hospital", icon: "🏥", info: "General Hospital<br>Emergency: 911<br>24/7 Service Available", address: "450 Wellness Ave, Uptown", position: { x: 62, y: 28 } },
+            { id: 3, name: "School", icon: "🏫", info: "Public School District<br>Contact: education@citypulse.com<br>Grades K-12", address: "300 Scholar Rd, Central District", position: { x: 50, y: 50 } },
+            { id: 4, name: "Mall", icon: "🛍️", info: "City Shopping Center<br>200+ stores<br>Open: 10 AM - 10 PM", address: "15 Skyline Plaza, Eastbank", position: { x: 72, y: 58 } },
+            { id: 5, name: "Library", icon: "📚", info: "Public Library<br>Free membership<br>Mon-Sat: 9 AM - 7 PM", address: "88 Heritage St, Midtown", position: { x: 38, y: 58 } },
+            { id: 6, name: "Stadium", icon: "🏟️", info: "Sports Complex<br>Capacity: 30,000<br>Event bookings available", address: "900 Victory Dr, Southside", position: { x: 60, y: 78 } },
+            { id: 7, name: "Metro", icon: "🚇", info: "Metro Station<br>4 lines intersect here<br>First train: 5 AM", address: "1 Transit Hub, Riverside", position: { x: 28, y: 70 } },
+            { id: 8, name: "Police", icon: "👮", info: "Police Station<br>Emergency: 911<br>Community helpline available", address: "210 Justice Blvd, Old Town", position: { x: 20, y: 48 } },
+            { id: 9, name: "Fire Dept", icon: "🚒", info: "Fire Department<br>Emergency: 911<br>Fire safety training available", address: "75 Guardian Way, Uptown", position: { x: 48, y: 20 } }
         ];
 
         // Render Map
+        const addressDisplay = {
+            name: document.getElementById('selectedPlace'),
+            address: document.getElementById('selectedAddress')
+        };
+
         function renderMap() {
             const mapContainer = document.getElementById('cityMap');
-            mapContainer.innerHTML = zones.map(zone => `
-                <div class="zone" onclick="openZoneModal(${zone.id})">
-                    <div class="zone-icon">${zone.icon}</div>
-                    <div class="zone-name">${zone.name}</div>
-                </div>
-            `).join('');
+            mapContainer.innerHTML = `
+                <svg class="city-outline" viewBox="0 0 500 500" preserveAspectRatio="none">
+                    <path d="M90,60 L220,40 L320,60 L420,110 L455,200 L445,320 L360,420 L250,450 L150,430 L70,360 L50,250 Z"></path>
+                </svg>
+                <div class="city-grid" aria-hidden="true"></div>
+                ${zones.map(zone => `
+                    <button class="marker" type="button" style="left:${zone.position.x}%; top:${zone.position.y}%;" onclick="openZoneModal(${zone.id})" aria-label="${zone.name}">
+                        <span class="marker-pin"></span>
+                        <span class="marker-icon">${zone.icon}</span>
+                        <span class="marker-label">${zone.name}</span>
+                    </button>
+                `).join('')}
+            `;
         }
 
         // Modal Functions
@@ -278,7 +451,12 @@
             const zone = zones.find(z => z.id === zoneId);
             document.getElementById('modalTitle').textContent = zone.name;
             document.getElementById('modalInfo').innerHTML = zone.info;
+            document.getElementById('modalAddress').innerHTML = `
+                <strong>Address</strong>
+                <span>${zone.address}</span>
+            `;
             document.getElementById('zoneModal').classList.add('active');
+            updateAddressPanel(zone);
         }
 
         function closeModal() {
@@ -291,6 +469,11 @@
                 closeModal();
             }
         });
+
+        function updateAddressPanel(zone) {
+            addressDisplay.name.textContent = zone.name;
+            addressDisplay.address.textContent = zone.address;
+        }
 
         // Initialize
         renderMap();
